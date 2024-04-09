@@ -16,6 +16,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
+          debug: true
           script: whoami
       # - name: Install dependencies
       #   uses: appleboy/ssh-action@v1.0.3
