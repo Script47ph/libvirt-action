@@ -17,7 +17,7 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: sudo yum update -y
-          
+
       - name: Install dependencies
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -28,34 +28,31 @@ jobs:
           script: |
             if rpm -q libvirt &>/dev/null; then echo "libvirt is installed."; else sudo yum install qemu-kvm libvirt -y; fi
 
-  # Configure:
-  #   needs: Prepare
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Configuring libvirt
-  #       uses: appleboy/ssh-action@v1.0.3
-  #       with:
-  #         host: ${{ secrets.HOST }}
-  #         username: ${{ secrets.USER }}
-  #         key: ${{ secrets.KEY }}
-  #         port: ${{ secrets.PORT }}
-  #         script: |
-  #           sudo sed -i "s,#unix_sock_group,unix_sock_group,g" /etc/libvirt/libvirtd.conf
-  #           sudo sed -i "s,#unix_sock_rw_perms,unix_sock_rw_perms,g" /etc/libvirt/libvirtd.conf
-  #           echo 'user = "$(whoami)"' | sudo tee -a /etc/libvirt/qemu.conf
-  #           echo 'group = "libvirt"' | sudo tee -a /etc/libvirt/qemu.conf
-  #           mkdir -p ~/.config/libvirt/
-  #           echo 'uri_default = "qemu:///system"' > ~/.config/libvirt/libvirt.conf
-  #           mkdir -p ~/data/isos/
-  #           virsh pool-define-as --name isos --type dir --target ~/data/isos/
-  #           virsh pool-start isos
-  #           virsh pool-autostart isos
-  #           virsh pool-info isos
-  #           mkdir -p ~/data/vms/
-  #           virsh pool-define-as --name vms --type dir --target ~/data/vms/
-  #           virsh pool-start vms
-  #           virsh pool-autostart vms
-  #           virsh pool-info vms
+  Configure:
+    needs: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configuring libvirt
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            sudo sed -i "s,#unix_sock_group,unix_sock_group,g" /etc/libvirt/libvirtd.conf
+            sudo sed -i "s,#unix_sock_rw_perms,unix_sock_rw_perms,g" /etc/libvirt/libvirtd.conf
+            echo 'user = "$(whoami)"' | sudo tee -a /etc/libvirt/qemu.conf
+            echo 'group = "libvirt"' | sudo tee -a /etc/libvirt/qemu.conf
+            mkdir -p ~/.config/libvirt/
+            echo 'uri_default = "qemu:///system"' > ~/.config/libvirt/libvirt.conf
+            for i in "${${{ vars.POOL }}[@]}"; \
+            do mkdir -p ~/data/$i; \
+            virsh pool-define-as --name $i --type dir --target ~/data/$i; \
+            virsh pool-start $i; \
+            virsh pool-autostart $i; \
+            virsh pool-info $i; \
+            done
             
   #     - name: Generate libvirt network
   #       run: |
