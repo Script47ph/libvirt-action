@@ -1,0 +1,138 @@
+name: Libvirt Action
+
+on:
+  push:
+    branches: main
+  workflow_dispatch:
+
+jobs:
+  Prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update packages
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: sudo yum update -y
+      # - name: Install dependencies
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     host: ${{ secrets.HOST }}
+      #     username: ${{ secrets.USER }}
+      #     key: ${{ secrets.KEY }}
+      #     port: ${{ secrets.PORT }}
+      #     script: |
+      #       if rpm -q libvirt &>/dev/null; then echo "libvirt is installed."; else sudo yum install qemu-kvm libvirt -y; fi
+
+  # Configure:
+  #   needs: Prepare
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Configuring libvirt
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       with:
+  #         host: ${{ secrets.HOST }}
+  #         username: ${{ secrets.USER }}
+  #         key: ${{ secrets.KEY }}
+  #         port: ${{ secrets.PORT }}
+  #         script: |
+  #           sudo sed -i "s,#unix_sock_group,unix_sock_group,g" /etc/libvirt/libvirtd.conf
+  #           sudo sed -i "s,#unix_sock_rw_perms,unix_sock_rw_perms,g" /etc/libvirt/libvirtd.conf
+  #           echo 'user = "$(whoami)"' | sudo tee -a /etc/libvirt/qemu.conf
+  #           echo 'group = "libvirt"' | sudo tee -a /etc/libvirt/qemu.conf
+  #           mkdir -p ~/.config/libvirt/
+  #           echo 'uri_default = "qemu:///system"' > ~/.config/libvirt/libvirt.conf
+  #           mkdir -p ~/data/isos/
+  #           virsh pool-define-as --name isos --type dir --target ~/data/isos/
+  #           virsh pool-start isos
+  #           virsh pool-autostart isos
+  #           virsh pool-info isos
+  #           mkdir -p ~/data/vms/
+  #           virsh pool-define-as --name vms --type dir --target ~/data/vms/
+  #           virsh pool-start vms
+  #           virsh pool-autostart vms
+  #           virsh pool-info vms
+            
+  #     - name: Generate libvirt network
+  #       run: |
+  #         source scripts/generate-network.sh
+  #         generate_net
+  #       env:
+  #         ETH0_NAME: ${{ vars.ETH0_NAME }}
+  #         ETH0_BR: ${{ vars.ETH0_BR }}
+  #         ETH0_ADDRESSES: ${{ vars.ETH0_ADDRESSES }}
+  #         NETWORK_MODE: ${{ vars.NETWORK_MODE }}
+  #         TEMPLATE_DIR: ${{ vars.TEMPLATE_DIR }}
+          
+  #     - uses: hashicorp/setup-terraform@v3
+  #     - name: Validate terraform template
+  #       id: validate
+  #       run: |
+  #         cd $TEMPLATE_DIR
+  #         terraform init
+  #         terraform validate
+
+  #     - name: Upload template as artifact
+  #       uses: actions/upload-artifact@v4
+  #       if: steps.validate.outcome == 'success'
+  #       with:
+  #         name: libvirt_network_template
+  #         path: ${{ vars.TEMPLATE_DIR}}/cluster-network.tf
+  #         overwrite: true
+
+  #     - name: Enable libvirt services
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       with:
+  #         host: ${{ secrets.HOST }}
+  #         username: ${{ secrets.USER }}
+  #         key: ${{ secrets.KEY }}
+  #         port: ${{ secrets.PORT }}
+  #         script: sudo systemctl enable --now libvirtd.service
+
+  #     - name: Download artifact template
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: libvirt_network_template
+  #         path: ${{ github.repository }}
+
+  #     - name: Copy libvirt network
+  #       uses: appleboy/scp-action@v0.1.7
+  #       with:
+  #         host: ${{ secrets.HOST }}
+  #         username: ${{ secrets.USER }}
+  #         key: ${{ secrets.KEY }}
+  #         port: ${{ secrets.PORT }}
+  #         source: ${{ github.repository}}/*
+  #         target: ${{ secrets.MYDIR }}
+
+  #     - name: Applying libvirt network
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       if: ${{ always() && needs.Checking.result == 'success'}}
+  #       with:
+  #         host: ${{ secrets.HOST }}
+  #         username: ${{ secrets.USER }}
+  #         key: ${{ secrets.KEY }}
+  #         port: ${{ secrets.PORT }}
+  #         script: |
+  #           ls -lh ${{ secrets.MYDIR }}
+  #           cd ${{ secrets.MYDIR }}/${{ github.repository }}
+  #           terraform init
+  #           terraform apply -auto-approve
+  # Testing:
+  #   needs:
+  #     - Prepare
+  #     - Configure
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Import ubuntu template cloud image
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       with:
+  #         host: ${{ secrets.HOST }}
+  #         username: ${{ secrets.USER }}
+  #         key: ${{ secrets.KEY }}
+  #         port: ${{ secrets.PORT }}
+  #         script: |
+  #           if [[ -n $(virsh vol-list isos|grep focal) ]]; then echo Image already exists; else wget https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img -O ~/data/isos/template-focal.img; virsh pool-refresh isos; fi
