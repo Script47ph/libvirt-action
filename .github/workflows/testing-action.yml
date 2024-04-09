@@ -42,7 +42,7 @@ jobs:
           script: |
             sudo sed -i "s,#unix_sock_group,unix_sock_group,g" /etc/libvirt/libvirtd.conf
             sudo sed -i "s,#unix_sock_rw_perms,unix_sock_rw_perms,g" /etc/libvirt/libvirtd.conf
-            echo 'user = "$(whoami)"' | sudo tee -a /etc/libvirt/qemu.conf
+            echo 'user = \"$(whoami)\"' | sudo tee -a /etc/libvirt/qemu.conf
             echo 'group = "libvirt"' | sudo tee -a /etc/libvirt/qemu.conf
             mkdir -p ~/.config/libvirt/
             echo 'uri_default = "qemu:///system"' > ~/.config/libvirt/libvirt.conf
@@ -53,7 +53,6 @@ jobs:
             virsh pool-autostart $i; \
             virsh pool-info $i; \
             done
-            
   #     - name: Generate libvirt network
   #       run: |
   #         source scripts/generate-network.sh
