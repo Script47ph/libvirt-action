@@ -16,17 +16,17 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          debug: true
-          script: whoami
-      # - name: Install dependencies
-      #   uses: appleboy/ssh-action@v1.0.3
-      #   with:
-      #     host: ${{ secrets.HOST }}
-      #     username: ${{ secrets.USER }}
-      #     key: ${{ secrets.KEY }}
-      #     port: ${{ secrets.PORT }}
-      #     script: |
-      #       if rpm -q libvirt &>/dev/null; then echo "libvirt is installed."; else sudo yum install qemu-kvm libvirt -y; fi
+          script: sudo yum update -y
+          
+      - name: Install dependencies
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            if rpm -q libvirt &>/dev/null; then echo "libvirt is installed."; else sudo yum install qemu-kvm libvirt -y; fi
 
   # Configure:
   #   needs: Prepare
