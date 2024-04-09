@@ -16,7 +16,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          script: sudo yum update -y
+          script: whoami
       # - name: Install dependencies
       #   uses: appleboy/ssh-action@v1.0.3
       #   with:
