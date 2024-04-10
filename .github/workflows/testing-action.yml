@@ -106,7 +106,7 @@ jobs:
             for i in "${items[@]}"; \
             do \
             if virsh pool-list --name|grep $i &>/dev/null; \
-            then pool $i exist; \
+            then echo pool $i exist; \
             else mkdir -p ~/data/$i; \
             virsh pool-define-as --name $i --type dir --target ~/data/$i; \
             virsh pool-start $i; \
