@@ -71,40 +71,35 @@ jobs:
       #     port: ${{ secrets.PORT }}
       #     script: sudo systemctl restart libvirtd.service
 
-      - name: Create pool
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            items=(${{ vars.POOL }})
-            for i in "${items[@]}"; \
-            do mkdir -p ~/data/$i; \
-            virsh pool-define-as --name $i --type dir --target ~/data/$i; \
-            virsh pool-start $i; \
-            virsh pool-autostart $i; \
-            virsh pool-info $i; \
-            done
-  #     - name: Generate libvirt network
-  #       run: |
-  #         source scripts/generate-network.sh
-  #         generate_net
-  #       env:
-  #         ETH0_NAME: ${{ vars.ETH0_NAME }}
-  #         ETH0_BR: ${{ vars.ETH0_BR }}
-  #         ETH0_ADDRESSES: ${{ vars.ETH0_ADDRESSES }}
-  #         NETWORK_MODE: ${{ vars.NETWORK_MODE }}
-  #         TEMPLATE_DIR: ${{ vars.TEMPLATE_DIR }}
+      # - name: Create pool
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     host: ${{ secrets.HOST }}
+      #     username: ${{ secrets.USER }}
+      #     key: ${{ secrets.KEY }}
+      #     port: ${{ secrets.PORT }}
+      #     script: |
+      #       items=(${{ vars.POOL }})
+      #       for i in "${items[@]}"; \
+      #       do mkdir -p ~/data/$i; \
+      #       virsh pool-define-as --name $i --type dir --target ~/data/$i; \
+      #       virsh pool-start $i; \
+      #       virsh pool-autostart $i; \
+      #       virsh pool-info $i; \
+      #       done
+      - name: Generate libvirt network
+        run: |
+          source scripts/generate-network.sh
+          generate_net
+        env:
+          NETWORK_RAW: ${{ vars.NETWORK_RAW }}
           
-  #     - uses: hashicorp/setup-terraform@v3
-  #     - name: Validate terraform template
-  #       id: validate
-  #       run: |
-  #         cd $TEMPLATE_DIR
-  #         terraform init
-  #         terraform validate
+      - uses: hashicorp/setup-terraform@v3
+      - name: Validate terraform template
+        id: validate
+        run: |
+          terraform init
+          terraform validate
 
   #     - name: Upload template as artifact
   #       uses: actions/upload-artifact@v4
