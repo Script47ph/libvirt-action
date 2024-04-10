@@ -211,5 +211,5 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          source: testing-instance.txt
-          target: ${{ secrets.MYDIR }}
+          source: testing
+          target: ${{ secrets.MYDIR }}/${{ github.repository }}
