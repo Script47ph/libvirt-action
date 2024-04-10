@@ -46,6 +46,24 @@ jobs:
             echo 'group = "libvirt"' | sudo tee -a /etc/libvirt/qemu.conf
             mkdir -p ~/.config/libvirt/
             echo 'uri_default = "qemu:///system"' > ~/.config/libvirt/libvirt.conf
+
+      - name: Enable libvirt services
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: sudo systemctl enable --now libvirtd.service
+
+      - name: Create pool
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
             items=(${{ vars.POOL }})
             for i in "${items[@]}"; \
             do mkdir -p ~/data/$i; \
@@ -80,15 +98,6 @@ jobs:
   #         name: libvirt_network_template
   #         path: ${{ vars.TEMPLATE_DIR}}/cluster-network.tf
   #         overwrite: true
-
-  #     - name: Enable libvirt services
-  #       uses: appleboy/ssh-action@v1.0.3
-  #       with:
-  #         host: ${{ secrets.HOST }}
-  #         username: ${{ secrets.USER }}
-  #         key: ${{ secrets.KEY }}
-  #         port: ${{ secrets.PORT }}
-  #         script: sudo systemctl enable --now libvirtd.service
 
   #     - name: Download artifact template
   #       uses: actions/download-artifact@v4
