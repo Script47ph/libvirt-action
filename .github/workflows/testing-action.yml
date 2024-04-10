@@ -184,12 +184,13 @@ jobs:
           script: |
             if virsh vol-list ${{ vars.POOL_IMG }}|grep -i ${{ vars.TESTING_IMG }} &>/dev/null; \
             then echo testing image exist; \
-            else wget ${{ vars.TESTING_IMG_URL }} -O ~/data/${{ vars.POOL_IMG }}/${{ vars.TESTING_IMG }}; \
+            else wget -s ${{ vars.TESTING_IMG_URL }} -O ~/data/${{ vars.POOL_IMG }}/${{ vars.TESTING_IMG }}; \
+            virsh pool-refresh ${{ vars.POOL_IMG }}; \
             fi
 
       - name: Create testing instance
         run: |
-          cat ${{ secrets.INSTANCE_SPECS }} > testing-instance.txt
+          echo ${{ secrets.INSTANCE_SPECS }} > testing-instance.txt
           bash scripts/terraform-gen/tfgen.sh testing testing-instance.txt
         env:
           TESTING_IMG: ${{ vars.TESTING_IMG }}
