@@ -134,19 +134,19 @@ jobs:
           source: ${{ github.repository}}/*
           target: ${{ secrets.MYDIR }}
 
-  #     - name: Applying libvirt network
-  #       uses: appleboy/ssh-action@v1.0.3
-  #       if: ${{ always() && needs.Checking.result == 'success'}}
-  #       with:
-  #         host: ${{ secrets.HOST }}
-  #         username: ${{ secrets.USER }}
-  #         key: ${{ secrets.KEY }}
-  #         port: ${{ secrets.PORT }}
-  #         script: |
-  #           ls -lh ${{ secrets.MYDIR }}
-  #           cd ${{ secrets.MYDIR }}/${{ github.repository }}
-  #           terraform init
-  #           terraform apply -auto-approve
+      - name: Applying libvirt network
+        uses: appleboy/ssh-action@v1.0.3
+        # if: ${{ always() && needs.Checking.result == 'success'}}
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            ls -lh ${{ secrets.MYDIR }}
+            cd ${{ secrets.MYDIR }}/${{ github.repository }}
+            terraform init
+            terraform apply -auto-approve
   # Testing:
   #   needs:
   #     - Prepare
