@@ -103,29 +103,29 @@ jobs:
           terraform init
           terraform validate
 
-  #     - name: Upload template as artifact
-  #       uses: actions/upload-artifact@v4
-  #       if: steps.validate.outcome == 'success'
-  #       with:
-  #         name: libvirt_network_template
-  #         path: ${{ vars.TEMPLATE_DIR}}/cluster-network.tf
-  #         overwrite: true
+      - name: Upload template as artifact
+        uses: actions/upload-artifact@v4
+        if: steps.validate.outcome == 'success'
+        with:
+          name: libvirt_network_template
+          path: cluster-network.tf
+          overwrite: true
 
-  #     - name: Download artifact template
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: libvirt_network_template
-  #         path: ${{ github.repository }}
+      - name: Download artifact template
+        uses: actions/download-artifact@v4
+        with:
+          name: libvirt_network_template
+          path: ${{ github.repository }}
 
-  #     - name: Copy libvirt network
-  #       uses: appleboy/scp-action@v0.1.7
-  #       with:
-  #         host: ${{ secrets.HOST }}
-  #         username: ${{ secrets.USER }}
-  #         key: ${{ secrets.KEY }}
-  #         port: ${{ secrets.PORT }}
-  #         source: ${{ github.repository}}/*
-  #         target: ${{ secrets.MYDIR }}
+      - name: Copy libvirt network
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          source: ${{ github.repository}}/*
+          target: ${{ secrets.MYDIR }}
 
   #     - name: Applying libvirt network
   #       uses: appleboy/ssh-action@v1.0.3
