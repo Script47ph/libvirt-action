@@ -223,5 +223,5 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd ${{ secrets.MYDIR }}/${{ github.repository }}/testing
-            terraform deploy -auto-approve
+            terraform apply -auto-approve
             virsh start testing-instance && virsh console testing-instance
