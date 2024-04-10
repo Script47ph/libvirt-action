@@ -36,6 +36,10 @@ jobs:
             sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo; \
             sudo yum -y install terraform; \
             fi
+            if [ -n "$(which mkisofs 2>/dev/null)" ]; \
+            then echo "genisoimage is installed"; \
+            else sudo yum install -y genisoimage; \
+            fi
 
 
   Configure:
