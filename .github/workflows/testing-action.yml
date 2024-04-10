@@ -31,33 +31,36 @@ jobs:
             else sudo yum install qemu-kvm libvirt -y; \
             fi
 
-  # Configure:
-  #   needs: Prepare
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Configuring libvirt
-  #       uses: appleboy/ssh-action@v1.0.3
-  #       with:
-  #         host: ${{ secrets.HOST }}
-  #         username: ${{ secrets.USER }}
-  #         key: ${{ secrets.KEY }}
-  #         port: ${{ secrets.PORT }}
-  #         script: |
-  #           sudo sed -i "s,#unix_sock_group,unix_sock_group,g" /etc/libvirt/libvirtd.conf
-  #           sudo sed -i "s,#unix_sock_rw_perms,unix_sock_rw_perms,g" /etc/libvirt/libvirtd.conf
-  #           echo 'user = \"$(whoami)\"' | sudo tee -a /etc/libvirt/qemu.conf
-  #           echo 'group = "libvirt"' | sudo tee -a /etc/libvirt/qemu.conf
-  #           mkdir -p ~/.config/libvirt/
-  #           echo 'uri_default = "qemu:///system"' > ~/.config/libvirt/libvirt.conf
+  Configure:
+    needs: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configuring libvirt
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            sudo usermod -aG libvirt $USER
+            sudo usermod -aG kvm $USER
+            newgrp libvirt
+            sudo sed -i "s,#unix_sock_group,unix_sock_group,g" /etc/libvirt/libvirtd.conf
+            sudo sed -i "s,#unix_sock_rw_perms,unix_sock_rw_perms,g" /etc/libvirt/libvirtd.conf
+            echo "user = \"$(whoami)\"" | sudo tee -a /etc/libvirt/qemu.conf
+            echo 'group = "libvirt"' | sudo tee -a /etc/libvirt/qemu.conf
+            mkdir -p ~/.config/libvirt/
+            echo 'uri_default = "qemu:///system"' > ~/.config/libvirt/libvirt.conf
 
-  #     - name: Enable libvirt services
-  #       uses: appleboy/ssh-action@v1.0.3
-  #       with:
-  #         host: ${{ secrets.HOST }}
-  #         username: ${{ secrets.USER }}
-  #         key: ${{ secrets.KEY }}
-  #         port: ${{ secrets.PORT }}
-  #         script: sudo systemctl enable --now libvirtd.service
+      - name: Enable libvirt services
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: sudo systemctl enable --now libvirtd.service
 
   #     - name: Create pool
   #       uses: appleboy/ssh-action@v1.0.3
