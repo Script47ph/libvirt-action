@@ -16,7 +16,7 @@ else
                 echo "File environment does not exist"
             else
                 export ENV_FILE="$2"
-                source function/gentemplate.sh
+                source terraform-gen/function/gentemplate.sh
                 generate_template
             fi
         fi
