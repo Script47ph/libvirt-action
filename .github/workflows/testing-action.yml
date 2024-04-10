@@ -35,6 +35,8 @@ jobs:
     needs: Prepare
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout local git
+        uses: actions/checkout@v4
       # - name: Enable libvirt services
       #   uses: appleboy/ssh-action@v1.0.3
       #   with:
