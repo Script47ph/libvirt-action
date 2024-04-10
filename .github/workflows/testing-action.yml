@@ -213,3 +213,15 @@ jobs:
           port: ${{ secrets.PORT }}
           source: testing
           target: ${{ secrets.MYDIR }}/${{ github.repository }}
+
+      - name: Apply
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.MYDIR }}/${{ github.repository }}/testing
+            terraform deploy -auto-approve
+            virsh start testing-instance && virsh console testing-instance
