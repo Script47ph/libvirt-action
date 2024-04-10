@@ -46,7 +46,8 @@ jobs:
             echo 'group = "libvirt"' | sudo tee -a /etc/libvirt/qemu.conf
             mkdir -p ~/.config/libvirt/
             echo 'uri_default = "qemu:///system"' > ~/.config/libvirt/libvirt.conf
-            for i in "${${{ vars.POOL }}[@]}"; \
+            items=(${{ vars.POOL }})
+            for i in "${items[@]}"; \
             do mkdir -p ~/data/$i; \
             virsh pool-define-as --name $i --type dir --target ~/data/$i; \
             virsh pool-start $i; \
