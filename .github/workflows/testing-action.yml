@@ -165,18 +165,50 @@ jobs:
             cd ${{ secrets.MYDIR }}/${{ github.repository }}
             terraform init
             terraform apply -auto-approve
-  # Testing:
-  #   needs:
-  #     - Prepare
-  #     - Configure
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Import ubuntu template cloud image
-  #       uses: appleboy/ssh-action@v1.0.3
-  #       with:
-  #         host: ${{ secrets.HOST }}
-  #         username: ${{ secrets.USER }}
-  #         key: ${{ secrets.KEY }}
-  #         port: ${{ secrets.PORT }}
-  #         script: |
-  #           if [[ -n $(virsh vol-list isos|grep focal) ]]; then echo Image already exists; else wget https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img -O ~/data/isos/template-focal.img; virsh pool-refresh isos; fi
+  Testing:
+    needs:
+      - Prepare
+      - Configure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout local git
+        uses: actions/checkout@v4
+
+      - name: Import testing template cloud image
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            if virsh vol-list ${{ vars.POOL_IMG }}|grep -i ${{ vars.TESTING_IMG }} &>/dev/null; \
+            then echo testing image exist; \
+            else wget ${{ vars.TESTING_IMG_URL }} -O ~/data/${{ vars.POOL_IMG }}/${{ vars.TESTING_IMG }}; \
+            fi
+
+      - name: Create testing instance
+        run: |
+          cat ${{ secrets.INSTANCE_SPECS }} > testing-instance.txt
+          bash scripts/terraform-gen/tfgen.sh testing testing-instance.txt
+        env:
+          TESTING_IMG: ${{ vars.TESTING_IMG }}
+      
+      - uses: hashicorp/setup-terraform@v3
+      - name: Validate terraform template
+        id: validate-vm
+        run: |
+          cd testing
+          terraform init
+          terraform validate
+
+      - name: Copy testing instance template
+        uses: appleboy/scp-action@v0.1.7
+        if: steps.validate-vm.outcome == 'success'
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          source: testing-instance.txt
+          target: ${{ secrets.MYDIR }}
