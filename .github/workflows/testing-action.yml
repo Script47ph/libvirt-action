@@ -190,7 +190,7 @@ jobs:
 
       - name: Create testing instance
         run: |
-          echo ${{ secrets.INSTANCE_SPECS }} > testing-instance.txt
+          echo "${{ secrets.INSTANCE_SPECS }}" > testing-instance.txt
           bash scripts/terraform-gen/tfgen.sh testing testing-instance.txt
         env:
           TESTING_IMG: ${{ vars.TESTING_IMG }}
