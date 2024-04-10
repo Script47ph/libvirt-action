@@ -17,7 +17,7 @@ generate_template() {
 
 EOF
 
-	source scripts/terraform-gen/function/variable.sh
+	source scripts/terraform-gen/function/variables.sh
   pod_info
   END=$(cat ${ENV_FILE} | awk -F '[][]' '{print $2}' | grep VM | wc -l)
   for ((i = 1; i <= END; i++)); do
