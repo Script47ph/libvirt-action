@@ -28,4 +28,5 @@ install_libvirt() {
 
 # Main
 get_drone
-sh -c "./$DRONE_SSH_BIN $DRONE_SSH_ARG --script 'install_libvirt'"
+runscript=$(install_libvirt)
+sh -c "./$DRONE_SSH_BIN $DRONE_SSH_ARG --script '$runscript'"
