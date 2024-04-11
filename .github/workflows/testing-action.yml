@@ -228,4 +228,50 @@ jobs:
           script: |
             cd ${{ secrets.MYDIR }}/${{ github.repository }}/testing
             terraform apply -auto-approve
-            virsh start testing-instance && virsh console testing-instance
+  
+  Destroy:
+    needs: 
+      - Prepare
+      - Configure
+      - Testing
+    runs-on: ubuntu-latest
+    if: ${{ always()}}
+    environment: manual
+    steps:
+      - name: Checkout local git
+        uses: actions/checkout@v4
+      
+      - name: Destroy instance
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.MYDIR }}/${{ github.repository }}/testing
+            terraform destroy -auto-approve
+      
+      - name: Delete instance template
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            rm -rf ${{ secrets.MYDIR }}/${{ github.repository }}/testing
+
+      - name: Delete testing template cloud image
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            if virsh vol-list ${{ vars.POOL_IMG }}|grep -i ${{ vars.TESTING_IMG }} &>/dev/null; \
+            then rm -rf ~/data/${{ vars.POOL_IMG }}/${{ vars.TESTING_IMG }}; \
+            virsh pool-refresh ${{ vars.POOL_IMG }}; \
+            else echo image not found; \
+            fi
