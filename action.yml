@@ -83,11 +83,9 @@ runs:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
     - name: Run installer.sh
       run: |
-        DRONE_SSH_URL="https://github.com/appleboy/drone-ssh/releases/download/v1.7.4/drone-ssh-1.7.4-linux-amd64"
-        DRONE_SSH_BIN="drone-ssh"
-        curl -fL --retry 3 --keepalive-time 2 $DRONE_SSH_URL -o $DRONE_SSH_BIN
-        chmod +x $DRONE_SSH_BIN
-        ./DRONE_SSH_BIN -H $INPUT_HOST -p $INPUT_PORT -u $INPUT_USERNAME --ssh-key '$INPUT_KEY' --script pwd
+        curl -fL --retry 3 --keepalive-time 2 https://github.com/appleboy/drone-ssh/releases/download/v1.7.4/drone-ssh-1.7.4-linux-amd64 -o drone-ssh
+        chmod +x drone-ssh
+        ./drone-ssh -H $INPUT_HOST -p $INPUT_PORT -u $INPUT_USERNAME --ssh-key '$INPUT_KEY' --script pwd
       shell: bash
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
