@@ -85,7 +85,7 @@ runs:
       run: |
         curl -fL --retry 3 --keepalive-time 2 https://github.com/appleboy/drone-ssh/releases/download/v1.7.4/drone-ssh-1.7.4-linux-amd64 -o drone-ssh
         chmod +x drone-ssh
-        ./drone-ssh -H $INPUT_HOST -p $INPUT_PORT -u $INPUT_USERNAME --ssh-key '$INPUT_KEY' --script pwd
+        sh -c "./drone-ssh -H ${{ inputs.host }} -p ${{ inputs.port }} -u ${{ inputs.username }} --ssh-key '${{ inputs.key }}' --script 'pwd'"
       shell: bash
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
