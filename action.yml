@@ -82,7 +82,11 @@ runs:
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
     - name: Run installer.sh
-      run: scripts/installer.sh
+      run: |
+        cd scripts
+        DRONE_SSH_BIN="drone-ssh"
+        DRONE_SSH_ARG="--ssh-key '$INPUT_KEY' -H $INPUT_HOST -p $INPUT_PORT -u $INPUT_USERNAME --script"
+        sh -c ./$DRONE_SSH_BIN $DRONE_SSH_ARG ./installer.sh
       shell: bash
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
