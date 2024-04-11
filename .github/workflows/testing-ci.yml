@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Testing Script
-        uses: Script47ph/libvirt-action
+        uses: Script47ph/libvirt-action@main
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
