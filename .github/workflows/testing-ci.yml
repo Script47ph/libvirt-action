@@ -9,6 +9,9 @@ jobs:
   Testing:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout local git
+        uses: actions/checkout@v4
+
       - name: Testing Script
         uses: Script47ph/libvirt-action@main
         with:
