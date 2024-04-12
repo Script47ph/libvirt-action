@@ -19,3 +19,6 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
+          script: |
+            source scripts/installer.sh
+            install_libvirt
