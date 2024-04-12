@@ -16,15 +16,16 @@ jobs:
         run: |
           pwd
           ls -lh
-      # - name: Copy libvirt network
-      #   uses: appleboy/scp-action@v0.1.7
-      #   with:
-      #     host: ${{ secrets.HOST }}
-      #     username: ${{ secrets.USER }}
-      #     key: ${{ secrets.KEY }}
-      #     port: ${{ secrets.PORT }}
-      #     source: ${{ github.repository}}
-      #     target: ${{ secrets.TESTDIR }}
+
+      - name: Copy libvirt network
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          source: ./*
+          target: ${{ secrets.TESTDIR }}
 
       - name: Testing Script
         uses: appleboy/ssh-action@v1.0.3
