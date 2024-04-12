@@ -56,7 +56,7 @@ config_libvirt() {
 }
 config_pool() {
     items=($POOL)
-    for i in "${items[@]}"
+    for i in ${items[@]}
     do
         if virsh pool-list --name|grep $i &>/dev/null
         then

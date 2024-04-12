@@ -77,7 +77,7 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            export POOL=${{ vars.POOL }}
+            export POOL="${{ vars.POOL }}"
             export NETWORK_RAW='${{ vars.NETWORK_RAW }}'
             cd ${{ secrets.TESTDIR }}
             source scripts/action.sh
