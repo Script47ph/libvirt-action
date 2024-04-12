@@ -1,4 +1,3 @@
-#!/bin/bash
 install_libvirt() {
     #check dependency
     os_check=$(grep ^ID= /etc/os-release | cut -d'"' -f2)
@@ -15,6 +14,3 @@ install_libvirt() {
         echo "your os not supported yet."
     fi
 }
-
-# Main
-install_libvirt
