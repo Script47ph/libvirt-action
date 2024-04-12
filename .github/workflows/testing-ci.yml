@@ -12,6 +12,9 @@ jobs:
       - name: Checkout local git
         uses: actions/checkout@v4
 
+      - name: Delete existing directory
+        run: if [ -n "${{ secrets.TESTDIR }}"]; then sudo rm -rf ${{ secrets.TESTDIR }}; fi
+
       - name: Copy to destination
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -30,7 +33,7 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            source ${{ secrets.TESTDIR }}/scripts/installer.sh
+            source ${{ secrets.TESTDIR }}/scripts/action.sh
             install_libvirt
       
       - name: Install Terraform
@@ -41,5 +44,5 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            source ${{ secrets.TESTDIR }}/scripts/installer.sh
+            source ${{ secrets.TESTDIR }}/scripts/action.sh
             install_terraform
