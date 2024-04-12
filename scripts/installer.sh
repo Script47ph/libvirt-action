@@ -1,7 +1,7 @@
 install_libvirt() {
     #check dependency
     os_check=$(grep ^ID= /etc/os-release | cut -d'"' -f2)
-    if $os_check == "centos|redhat|rhel|rocky|alma"
+    if [[ $os_check =~ ^(centos|redhat|rhel|rocky|alma)$ ]]
     then
         sudo yum update -y
         if rpm -q libvirt &>/dev/null
