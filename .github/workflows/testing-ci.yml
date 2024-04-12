@@ -32,11 +32,33 @@ jobs:
           target: ${{ secrets.TESTDIR }}
 
 
-  # Debug:
+  Debug:
+    needs: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check current directory
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            pwd
+            ls -lh
+            echo ${{ vars.POOL }}
+            echo $POOL
+            echo ${{ vars.NETWORK_RAW }}
+            echo $NETWORK_RAW
+        env:
+          POOL: ${{ vars.POOL }}
+          NETWORK_RAW: ${{ vars.NETWORK_RAW }}
+
+  # Apply:
   #   needs: Prepare
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - name: Check current directory
+  #     - name: Install Dependencies
   #       uses: appleboy/ssh-action@v1.0.3
   #       with:
   #         host: ${{ secrets.HOST }}
@@ -44,41 +66,26 @@ jobs:
   #         key: ${{ secrets.KEY }}
   #         port: ${{ secrets.PORT }}
   #         script: |
-  #           pwd
-  #           ls -lh
+  #           source ${{ secrets.TESTDIR }}/scripts/action.sh
+  #           install_libvirt
+  #           install_terraform
+  #           install_geniso
 
-  Apply:
-    needs: Prepare
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install Dependencies
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            source ${{ secrets.TESTDIR }}/scripts/action.sh
-            install_libvirt
-            install_terraform
-            install_geniso
-
-      - name: Applying Config
-        uses: appleboy/ssh-action@v1.0.3
-        env:
-          POOL: ${{ vars.POOL }}
-          NETWORK_RAW: ${{ vars.NETWORK_RAW }}
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            cd ${{ secrets.TESTDIR }}
-            source scripts/action.sh
-            config_libvirt
-            config_pool
-            config_net
-            terraform init
-            terraform validate
+  #     - name: Applying Config
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       env:
+  #         POOL: ${{ vars.POOL }}
+  #         NETWORK_RAW: ${{ vars.NETWORK_RAW }}
+  #       with:
+  #         host: ${{ secrets.HOST }}
+  #         username: ${{ secrets.USER }}
+  #         key: ${{ secrets.KEY }}
+  #         port: ${{ secrets.PORT }}
+  #         script: |
+  #           cd ${{ secrets.TESTDIR }}
+  #           source scripts/action.sh
+  #           config_libvirt
+  #           config_pool
+  #           config_net
+  #           terraform init
+  #           terraform validate
