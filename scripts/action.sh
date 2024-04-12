@@ -55,7 +55,7 @@ config_libvirt() {
     sudo systemctl restart libvirtd.service
 }
 config_pool() {
-    items=($POOL)
+    items=(${{ vars.POOL }})
     for i in "${items[@]}"
     do
         if virsh pool-list --name|grep $i &>/dev/null
@@ -86,7 +86,7 @@ terraform {
     }
 }
 
-$NETWORK_RAW
+${{ vars.NETWORK_RAW }}
     
 EOF
 }
