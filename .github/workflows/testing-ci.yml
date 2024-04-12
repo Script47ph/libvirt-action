@@ -47,9 +47,9 @@ jobs:
             pwd
             ls -lh
             env
-            cat $POOL > POOL.txt
+            cat ${{ vars.POOL }} > POOL.txt
             cat POOL.txt
-            cat $NETWORK_RAW > NETWORK_RAW.txt
+            cat ${{ vars.NETWORK_RAW }} > NETWORK_RAW.txt
             cat NETWORK_RAW.txt
         env:
           POOL: ${{ vars.POOL }}
