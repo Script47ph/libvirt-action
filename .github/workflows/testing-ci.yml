@@ -19,7 +19,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          source: ${{ github.repository}}/*
+          source: ${{ github.repository}}
           target: ${{ secrets.TESTDIR }}
 
       - name: Testing Script
