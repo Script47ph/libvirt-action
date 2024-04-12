@@ -32,6 +32,9 @@ install_geniso() {
         sudo yum install -y genisoimage
     fi
 }
+destroy_depend() {
+    sudo yum remove -y genisoimage terraform qemu-kvm libvirt
+}
 config_libvirt() {
     if groups|grep libvirt &>/dev/null && groups|grep kvm &>/dev/null
     then
@@ -54,6 +57,28 @@ config_libvirt() {
     echo 'uri_default = "qemu:///system"' > $HOME/.config/libvirt/libvirt.conf
     sudo systemctl restart libvirtd.service
 }
+destroy_libvirt() {
+    if groups|grep libvirt &>/dev/null && groups|grep kvm &>/dev/null
+    then
+        echo user exist in libvirt and kvm groups! deleting..
+        sudo gpasswd -d $USER libvirt
+        sudo gpasswd -d $USER kvm
+    else
+        echo user doesn\'t exist in libvirt and kvm groups. exiting..
+    fi
+    sudo sed -i "s,^unix_sock_group,#unix_sock_group,g" /etc/libvirt/libvirtd.conf
+    sudo sed -i "s,^unix_sock_rw_perms,#unix_sock_rw_perms,g" /etc/libvirt/libvirtd.conf
+    if sudo grep ^user /etc/libvirt/qemu.conf &>/dev/null
+    then
+        echo user and group exists! deleting..
+        sed -i "s,^user =,#user =,g" /etc/libvirt/qemu.conf
+        sed -i "s,^group =,#group =,g" /etc/libvirt/qemu.conf
+    else
+        echo user and group doesn\'t exist. exiting..
+    fi
+    rm -rf $HOME/.config/libvirt/
+    sudo systemctl restart libvirtd.service
+}
 config_pool() {
     items=($POOL)
     for i in ${items[@]}
@@ -67,6 +92,20 @@ config_pool() {
             virsh pool-start $i
             virsh pool-autostart $i
             virsh pool-info $i
+        fi
+    done
+}
+destroy_pool() {
+    items=($POOL)
+    for i in "${items[@]}"
+    do
+        if virsh pool-list --name|grep $i &>/dev/null
+        then
+            echo pool $i exist! deleting..
+            virsh pool-destroy $i
+            virsh pool-undefine $i
+        else
+            echo pool $i doesn\'t exist. exiting..
         fi
     done
 }

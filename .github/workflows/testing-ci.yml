@@ -86,3 +86,24 @@ jobs:
             config_net
             terraform init
             terraform validate
+            terraform apply -auto-approve
+  Destroy:
+    runs-on: ubuntu-latest
+    environment: manual
+    steps:
+      - name: Destroy All
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            export POOL=${{ vars.POOL }}
+            export NETWORK_RAW='${{ vars.NETWORK_RAW }}'
+            cd ${{ secrets.TESTDIR }}
+            source scripts/action.sh
+            terraform destroy -auto-approve
+            destroy_pool
+            destroy_libvirt
+            destroy_depend
