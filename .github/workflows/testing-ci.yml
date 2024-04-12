@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Testing Script
-        uses: Script47ph/libvirt-action@main
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
