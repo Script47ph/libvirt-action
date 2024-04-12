@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Testing:
+  Prepare:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout local git
@@ -31,7 +31,12 @@ jobs:
           source: ./*
           target: ${{ secrets.TESTDIR }}
 
-      - name: Install Libvirt
+
+  Debug:
+    needs: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check current directory
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
@@ -39,16 +44,38 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            source ${{ secrets.TESTDIR }}/scripts/action.sh
-            install_libvirt
-      
-      - name: Install Terraform
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            source ${{ secrets.TESTDIR }}/scripts/action.sh
-            install_terraform
+            pwd
+            ls -lh
+
+  # Apply:
+  #   needs: Prepare
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Install Dependencies
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       with:
+  #         host: ${{ secrets.HOST }}
+  #         username: ${{ secrets.USER }}
+  #         key: ${{ secrets.KEY }}
+  #         port: ${{ secrets.PORT }}
+  #         script: |
+  #           source ${{ secrets.TESTDIR }}/scripts/action.sh
+  #           install_libvirt
+  #           install_terraform
+  #           install_geniso
+
+  #     - name: Applying Config
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       env:
+  #         POOL: ${{ vars.POOL }}
+  #         NETWORK_RAW: ${{ vars.NETWORK_RAW }}
+  #       with:
+  #         host: ${{ secrets.HOST }}
+  #         username: ${{ secrets.USER }}
+  #         key: ${{ secrets.KEY }}
+  #         port: ${{ secrets.PORT }}
+  #         script: |
+  #           source ${{ secrets.TESTDIR }}/scripts/action.sh
+  #           config_libvirt
+  #           config_pool
+  #           config_net
