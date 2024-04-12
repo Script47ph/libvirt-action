@@ -12,11 +12,6 @@ jobs:
       - name: Checkout local git
         uses: actions/checkout@v4
 
-      - name: List Doank
-        run: |
-          pwd
-          ls -lh
-
       - name: Copy to destination
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -27,7 +22,7 @@ jobs:
           source: ./*
           target: ${{ secrets.TESTDIR }}
 
-      - name: Testing Script
+      - name: Install Libvirt
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
@@ -35,6 +30,12 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            ls -lh ${{ secrets.TESTDIR }}
             source ${{ secrets.TESTDIR }}/scripts/installer.sh
             install_libvirt
+      
+      - name: Install Terraform
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          script: |
+            source ${{ secrets.TESTDIR }}/scripts/installer.sh
+            install_terraform
