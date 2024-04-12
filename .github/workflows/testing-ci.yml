@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Delete existing directory
-        run: if [ -n "${{ secrets.TESTDIR }}"]; then sudo rm -rf ${{ secrets.TESTDIR }}; fi
+        run: if [ -n "${{ secrets.TESTDIR }}" ]; then sudo rm -rf ${{ secrets.TESTDIR }}; fi
 
       - name: Copy to destination
         uses: appleboy/scp-action@v0.1.7
