@@ -46,10 +46,11 @@ jobs:
           script: |
             pwd
             ls -lh
-            echo ${{ vars.POOL }}
-            echo $POOL
-            echo ${{ vars.NETWORK_RAW }}
-            echo $NETWORK_RAW
+            env
+            cat $POOL > POOL.txt
+            cat POOL.txt
+            cat $NETWORK_RAW > NETWORK_RAW.txt
+            cat NETWORK_RAW.txt
         env:
           POOL: ${{ vars.POOL }}
           NETWORK_RAW: ${{ vars.NETWORK_RAW }}
