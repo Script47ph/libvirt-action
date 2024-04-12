@@ -17,7 +17,7 @@ jobs:
           pwd
           ls -lh
 
-      - name: Copy libvirt network
+      - name: Copy to destination
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST }}
@@ -36,5 +36,5 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             ls -lh ${{ secrets.TESTDIR }}
-            # source scripts/installer.sh
-            # install_libvirt
+            source ${{ secrets.TESTDIR }}/scripts/installer.sh
+            install_libvirt
