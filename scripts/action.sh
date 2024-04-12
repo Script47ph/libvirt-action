@@ -71,8 +71,8 @@ destroy_libvirt() {
     if sudo grep ^user /etc/libvirt/qemu.conf &>/dev/null
     then
         echo user and group exists! deleting..
-        sed -i "s,^user =,#user =,g" /etc/libvirt/qemu.conf
-        sed -i "s,^group =,#group =,g" /etc/libvirt/qemu.conf
+        sudo sed -i "s,^user =,#user =,g" /etc/libvirt/qemu.conf
+        sudo sed -i "s,^group =,#group =,g" /etc/libvirt/qemu.conf
     else
         echo user and group doesn\'t exist. exiting..
     fi
@@ -128,4 +128,12 @@ terraform {
 $NETWORK_RAW
     
 EOF
+    terraform init
+    terraform validate
+    if virsh net-list --name|grep $(grep name cluster-network.tf | cut -d'"' -f2) &>/dev/null
+    then
+        echo network exist! skipped..
+    else
+        terraform apply -auto-approve
+    fi
 }

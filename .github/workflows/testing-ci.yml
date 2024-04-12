@@ -84,9 +84,6 @@ jobs:
             config_libvirt
             config_pool
             config_net
-            terraform init
-            terraform validate
-            terraform apply -auto-approve
   Destroy:
     runs-on: ubuntu-latest
     environment: manual
