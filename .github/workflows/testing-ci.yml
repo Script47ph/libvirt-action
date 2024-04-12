@@ -36,6 +36,10 @@ jobs:
       - name: Install Terraform
         uses: appleboy/ssh-action@v1.0.3
         with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
           script: |
             source ${{ secrets.TESTDIR }}/scripts/installer.sh
             install_terraform
