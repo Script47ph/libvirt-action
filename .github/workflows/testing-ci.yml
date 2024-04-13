@@ -89,7 +89,7 @@ jobs:
   #           export TESTING_IMG_URL=${{ vars.TESTING_IMG_URL }}
   #           cd ${{ secrets.TESTDIR }}
   #           source scripts/action.sh
-  #           terraform destroy -auto-approve
+  #           destroy_net
   #           destroy_img
   #           destroy_pool
   #           destroy_libvirt
@@ -115,5 +115,5 @@ jobs:
             export TESTING_IMG_URL=${{ vars.TESTING_IMG_URL }}
             cd ${{ secrets.TESTDIR }}
             source scripts/action.sh
-            terraform destroy -auto-approve
+            destroy_net
             destroy_img

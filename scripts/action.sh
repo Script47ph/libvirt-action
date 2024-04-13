@@ -76,6 +76,8 @@ destroy_libvirt() {
     else
         echo user and group doesn\'t exist. exiting..
     fi
+    virsh net-destroy default
+    virsh net-undefine default
     rm -rf $HOME/.config/libvirt/
     sudo systemctl restart libvirtd.service
 }
@@ -125,6 +127,16 @@ destroy_img() {
         sudo rm -rf $POOLDIR/$POOL_IMG/$TESTING_IMG
     else
         echo testing image $TESTING_IMG doesn\'t exist! exiting..
+    fi
+}
+destroy_net() {
+    if virsh net-list --name|grep $(grep name cluster-network.tf | cut -d'"' -f2) &>/dev/null
+    then
+        echo network exist. deleting..
+        virsh net-destroy $(grep name cluster-network.tf | cut -d'"' -f2)
+        virsh net-undefine $(grep name cluster-network.tf | cut -d'"' -f2)
+    else
+        echo network doesn\'t exist! exiting..
     fi
 }
 config_net() {
