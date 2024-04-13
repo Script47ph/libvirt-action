@@ -96,7 +96,7 @@ jobs:
   #           destroy_depend
 
   Debug:
-    needs: Prepare
+    needs: Apply
     runs-on: ubuntu-latest
     steps:
       - name: Check current directory
