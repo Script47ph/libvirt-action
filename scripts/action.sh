@@ -114,7 +114,7 @@ config_img() {
     then
         echo testing image $TESTING_IMG already exist! skipped..
     else
-        wget -s $TESTING_IMG_URL -O $POOLDIR/$POOL_IMG/$TESTING_IMG
+        wget -q $TESTING_IMG_URL -O $POOLDIR/$POOL_IMG/$TESTING_IMG
         virsh pool-refresh $POOL_IMG
     fi
 }
