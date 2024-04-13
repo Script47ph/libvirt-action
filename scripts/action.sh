@@ -38,7 +38,7 @@ destroy_depend() {
 config_libvirt() {
     if groups|grep libvirt &>/dev/null && groups|grep kvm &>/dev/null
     then
-        echo user exist in libvirt and kvm groups! skipped..
+        echo user already exist in libvirt and kvm groups! skipped..
     else
         sudo usermod -aG libvirt $USER
         sudo usermod -aG kvm $USER
@@ -48,7 +48,7 @@ config_libvirt() {
     sudo sed -i "s,#unix_sock_rw_perms,unix_sock_rw_perms,g" /etc/libvirt/libvirtd.conf
     if sudo grep ^user /etc/libvirt/qemu.conf &>/dev/null
     then
-        echo user and group exists! skipped..
+        echo user and group already exists! skipped..
     else
         echo "user = \"$(whoami)\"" | sudo tee -a /etc/libvirt/qemu.conf
         echo 'group = "libvirt"' | sudo tee -a /etc/libvirt/qemu.conf
@@ -60,7 +60,7 @@ config_libvirt() {
 destroy_libvirt() {
     if groups|grep libvirt &>/dev/null && groups|grep kvm &>/dev/null
     then
-        echo user exist in libvirt and kvm groups! deleting..
+        echo user exist in libvirt and kvm groups. deleting..
         sudo gpasswd -d $USER libvirt
         sudo gpasswd -d $USER kvm
     else
@@ -70,7 +70,7 @@ destroy_libvirt() {
     sudo sed -i "s,^unix_sock_rw_perms,#unix_sock_rw_perms,g" /etc/libvirt/libvirtd.conf
     if sudo grep ^user /etc/libvirt/qemu.conf &>/dev/null
     then
-        echo user and group exists! deleting..
+        echo user and group exists. deleting..
         sudo sed -i "s,^user =,#user =,g" /etc/libvirt/qemu.conf
         sudo sed -i "s,^group =,#group =,g" /etc/libvirt/qemu.conf
     else
@@ -85,10 +85,10 @@ config_pool() {
     do
         if virsh pool-list --name|grep $i &>/dev/null
         then
-            echo pool $i exist! skipped..
+            echo pool $i already exist! skipped..
         else
-            mkdir -p $HOME/data/$i
-            virsh pool-define-as --name $i --type dir --target $HOME/data/$i
+            mkdir -p $POOLDIR/$i
+            virsh pool-define-as --name $i --type dir --target $POOLDIR/$i
             virsh pool-start $i
             virsh pool-autostart $i
             virsh pool-info $i
@@ -101,13 +101,31 @@ destroy_pool() {
     do
         if virsh pool-list --name|grep $i &>/dev/null
         then
-            echo pool $i exist! deleting..
+            echo pool $i exist. deleting..
             virsh pool-destroy $i
             virsh pool-undefine $i
         else
             echo pool $i doesn\'t exist. exiting..
         fi
     done
+}
+config_img() {
+    if virsh vol-list $POOL_IMG|grep -i $TESTING_IMG &>/dev/null
+    then
+        echo testing image $TESTING_IMG already exist! skipped..
+    else
+        wget -s $TESTING_IMG_URL -O $POOLDIR/$POOL_IMG/$TESTING_IMG
+        virsh pool-refresh $POOL_IMG
+    fi
+}
+destroy_img() {
+    if virsh vol-list $POOL_IMG|grep -i $TESTING_IMG &>/dev/null
+    then
+        echo testing image $TESTING_IMG exist. deleting..
+        sudo rm -rf $POOLDIR/$POOL_IMG/$TESTING_IMG
+    else
+        echo testing image $TESTING_IMG doesn\'t exist! exiting..
+    fi
 }
 config_net() {
     cat <<EOF> cluster-network.tf

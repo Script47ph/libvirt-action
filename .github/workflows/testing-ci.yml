@@ -79,10 +79,15 @@ jobs:
           script: |
             export POOL="${{ vars.POOL }}"
             export NETWORK_RAW='${{ vars.NETWORK_RAW }}'
+            export POOLDIR=${{ vars.POOLDIR }}
+            export POOL_IMG=${{ vars.POOL_IMG }}
+            export TESTING_IMG=${{ vars.TESTING_IMG }}
+            export TESTING_IMG_URL=${{ vars.TESTING_IMG_URL }}
             cd ${{ secrets.TESTDIR }}
             source scripts/action.sh
             config_libvirt
             config_pool
+            config_img
             config_net
   Destroy:
     runs-on: ubuntu-latest
@@ -98,9 +103,14 @@ jobs:
           script: |
             export POOL=${{ vars.POOL }}
             export NETWORK_RAW='${{ vars.NETWORK_RAW }}'
+            export POOLDIR=${{ vars.POOLDIR }}
+            export POOL_IMG=${{ vars.POOL_IMG }}
+            export TESTING_IMG=${{ vars.TESTING_IMG }}
+            export TESTING_IMG_URL=${{ vars.TESTING_IMG_URL }}
             cd ${{ secrets.TESTDIR }}
             source scripts/action.sh
             terraform destroy -auto-approve
+            destroy_img
             destroy_pool
             destroy_libvirt
             destroy_depend
