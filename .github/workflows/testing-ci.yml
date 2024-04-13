@@ -68,7 +68,51 @@ jobs:
             config_pool
             config_img
             config_net
+  
+  Deploy:
+    needs: Apply
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout local git
+        uses: actions/checkout@v4
 
+      - name: Create testing instance
+        run: |
+          echo "${{ secrets.INSTANCE_SPECS }}" > testing-instance.txt
+          bash scripts/terraform-gen/tfgen.sh testing testing-instance.txt
+        env:
+          TESTING_IMG: ${{ vars.TESTING_IMG }}
+
+      - uses: hashicorp/setup-terraform@v3
+      - name: Validate terraform template
+        id: validate-vm
+        run: |
+          cd testing
+          terraform init
+          terraform validate
+
+      - name: Copy testing instance template
+        uses: appleboy/scp-action@v0.1.7
+        if: steps.validate-vm.outcome == 'success'
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          source: testing
+          target: ${{ secrets.MYDIR }}/${{ github.repository }}
+
+      - name: Apply
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.MYDIR }}/${{ github.repository }}/testing
+            terraform apply -auto-approve
+            
   # Destroy:
   #   runs-on: ubuntu-latest
   #   environment: manual
@@ -95,25 +139,25 @@ jobs:
   #           destroy_libvirt
   #           destroy_depend
 
-  Debug:
-    needs: Apply
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check current directory
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            export POOL=${{ vars.POOL }}
-            export NETWORK_RAW='${{ vars.NETWORK_RAW }}'
-            export POOLDIR=${{ vars.POOLDIR }}
-            export POOL_IMG=${{ vars.POOL_IMG }}
-            export TESTING_IMG=${{ vars.TESTING_IMG }}
-            export TESTING_IMG_URL=${{ vars.TESTING_IMG_URL }}
-            cd ${{ secrets.TESTDIR }}
-            source scripts/action.sh
-            destroy_net
-            destroy_img
+  # Debug:
+  #   needs: Apply
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check current directory
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       with:
+  #         host: ${{ secrets.HOST }}
+  #         username: ${{ secrets.USER }}
+  #         key: ${{ secrets.KEY }}
+  #         port: ${{ secrets.PORT }}
+  #         script: |
+  #           export POOL=${{ vars.POOL }}
+  #           export NETWORK_RAW='${{ vars.NETWORK_RAW }}'
+  #           export POOLDIR=${{ vars.POOLDIR }}
+  #           export POOL_IMG=${{ vars.POOL_IMG }}
+  #           export TESTING_IMG=${{ vars.TESTING_IMG }}
+  #           export TESTING_IMG_URL=${{ vars.TESTING_IMG_URL }}
+  #           cd ${{ secrets.TESTDIR }}
+  #           source scripts/action.sh
+  #           destroy_net
+  #           destroy_img
