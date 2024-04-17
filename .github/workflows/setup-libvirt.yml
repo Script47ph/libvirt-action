@@ -1,0 +1,84 @@
+name: Setup Libvirt Environment
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  Prepare:
+    name: Preparing required directory
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout local git
+        uses: actions/checkout@v4
+      - name: Delete existing directory
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: if [ -n "${{ secrets.TESTDIR }}" ]; then sudo rm -rf ${{ secrets.TESTDIR }}; fi
+      - name: Copy to destination
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          source: ./*
+          target: ${{ secrets.TESTDIR }}
+
+  Apply:
+    name: Installing required packages
+    needs: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Dependencies
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            source ${{ secrets.TESTDIR }}/scripts/setup-libvirt.sh
+            install_libvirt
+            install_terraform
+            install_geniso
+      - name: Applying Config
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            export POOL="${{ vars.POOL }}"
+            export POOLDIR=${{ vars.POOLDIR }}
+            export POOL_IMG=${{ vars.POOL_IMG }}
+            cd ${{ secrets.TESTDIR }}
+            source scripts/setup-libvirt.sh
+            config_libvirt
+            config_pool
+
+  Destroy:
+    name: Destroy Libvirt Environment
+    runs-on: ubuntu-latest
+    environment: manual
+    steps:
+      - name: Destroy All
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            export POOL=${{ vars.POOL }}
+            export POOLDIR=${{ vars.POOLDIR }}
+            export POOL_IMG=${{ vars.POOL_IMG }}
+            cd ${{ secrets.TESTDIR }}
+            source scripts/setup-libvirt.sh
+            destroy_pool
+            destroy_libvirt
+            destroy_depend
