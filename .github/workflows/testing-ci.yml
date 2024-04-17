@@ -113,31 +113,33 @@ jobs:
             cd ${{ secrets.MYDIR }}/${{ github.repository }}/testing
             terraform apply -auto-approve
             
-  # Destroy:
-  #   runs-on: ubuntu-latest
-  #   environment: manual
-  #   steps:
-  #     - name: Destroy All
-  #       uses: appleboy/ssh-action@v1.0.3
-  #       with:
-  #         host: ${{ secrets.HOST }}
-  #         username: ${{ secrets.USER }}
-  #         key: ${{ secrets.KEY }}
-  #         port: ${{ secrets.PORT }}
-  #         script: |
-  #           export POOL=${{ vars.POOL }}
-  #           export NETWORK_RAW='${{ vars.NETWORK_RAW }}'
-  #           export POOLDIR=${{ vars.POOLDIR }}
-  #           export POOL_IMG=${{ vars.POOL_IMG }}
-  #           export TESTING_IMG=${{ vars.TESTING_IMG }}
-  #           export TESTING_IMG_URL=${{ vars.TESTING_IMG_URL }}
-  #           cd ${{ secrets.TESTDIR }}
-  #           source scripts/action.sh
-  #           destroy_net
-  #           destroy_img
-  #           destroy_pool
-  #           destroy_libvirt
-  #           destroy_depend
+  Destroy:
+    runs-on: ubuntu-latest
+    environment: manual
+    steps:
+      - name: Destroy All
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            export POOL=${{ vars.POOL }}
+            export NETWORK_RAW='${{ vars.NETWORK_RAW }}'
+            export POOLDIR=${{ vars.POOLDIR }}
+            export POOL_IMG=${{ vars.POOL_IMG }}
+            export TESTING_IMG=${{ vars.TESTING_IMG }}
+            export TESTING_IMG_URL=${{ vars.TESTING_IMG_URL }}
+            cd ${{ secrets.MYDIR }}/${{ github.repository }}/testing
+            terraform destroy -auto-approve
+            cd ${{ secrets.TESTDIR }}
+            source scripts/action.sh
+            destroy_net
+            destroy_img
+            destroy_pool
+            destroy_libvirt
+            destroy_depend
 
   # Debug:
   #   needs: Apply
