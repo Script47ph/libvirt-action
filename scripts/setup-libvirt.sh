@@ -58,6 +58,8 @@ config_libvirt() {
     sudo systemctl restart libvirtd.service
 }
 destroy_libvirt() {
+    virsh net-destroy default
+    virsh net-undefine default
     if groups|grep libvirt &>/dev/null && groups|grep kvm &>/dev/null
     then
         echo user exist in libvirt and kvm groups. deleting..
@@ -76,8 +78,6 @@ destroy_libvirt() {
     else
         echo user and group doesn\'t exist. exiting..
     fi
-    virsh net-destroy default
-    virsh net-undefine default
     rm -rf $HOME/.config/libvirt/
     sudo systemctl restart libvirtd.service
 }
