@@ -34,7 +34,7 @@ jobs:
             export POOL="${{ vars.POOL }}"
             export POOLDIR=${{ vars.POOLDIR }}
             export POOL_IMG=${{ vars.POOL_IMG }}
-            export NETWORK_RAW=${{ vars.NETWORK_RAW }}
+            export NETWORK_RAW="${{ vars.NETWORK_RAW }}"
             export OS_IMG=${{ vars.OS_IMG }}
             source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
             config_img
@@ -55,7 +55,7 @@ jobs:
             export POOL="${{ vars.POOL }}"
             export POOLDIR=${{ vars.POOLDIR }}
             export POOL_IMG=${{ vars.POOL_IMG }}
-            export NETWORK_RAW=${{ vars.NETWORK_RAW }}
+            export NETWORK_RAW="${{ vars.NETWORK_RAW }}"
             export OS_IMG=${{ vars.OS_IMG }}
             source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
             destroy_img
