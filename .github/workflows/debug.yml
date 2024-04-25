@@ -12,6 +12,8 @@ jobs:
               run: |
                 echo "${{ vars.INSTANCE_SPECS }}" > instance.txt
                 cat instance.txt
+              env:
+                OS: ${{ vars.TESTING_IMG }}
             - name: Upload Artifact
               uses: actions/upload-artifact@v4
               with:
