@@ -5,7 +5,6 @@ on:
 
 jobs:
   Prepare:
-    name: Preparing required directory
     runs-on: ubuntu-latest
     steps:
       - name: Checkout local git
@@ -21,22 +20,9 @@ jobs:
           target: ${{ vars.INSTANCE_DIR }}
 
   Apply:
-    name: Installing required packages
     needs: Prepare
     runs-on: ubuntu-latest
     steps:
-      - name: Install Dependencies
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
-            install_libvirt
-            install_terraform
-            install_geniso
       - name: Applying Config
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -48,16 +34,17 @@ jobs:
             export POOL="${{ vars.POOL }}"
             export POOLDIR=${{ vars.POOLDIR }}
             export POOL_IMG=${{ vars.POOL_IMG }}
+            export NETWORK_RAW=${{ vars.NETWORK_RAW }}
+            export OS_IMG=${{ vars.OS_IMG }}
             source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
-            config_libvirt
-            config_pool
+            config_img
+            config_net
 
   Destroy:
-    name: Destroy Libvirt Environment
     runs-on: ubuntu-latest
     environment: manual
     steps:
-      - name: Destroy All
+      - name: Destroy Instance
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
@@ -65,10 +52,11 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            export POOL=${{ vars.POOL }}
+            export POOL="${{ vars.POOL }}"
             export POOLDIR=${{ vars.POOLDIR }}
             export POOL_IMG=${{ vars.POOL_IMG }}
+            export NETWORK_RAW=${{ vars.NETWORK_RAW }}
+            export OS_IMG=${{ vars.OS_IMG }}
             source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
-            destroy_pool
-            destroy_libvirt
-            destroy_depend
+            destroy_img
+            destroy_net

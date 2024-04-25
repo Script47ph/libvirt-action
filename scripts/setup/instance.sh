@@ -1,19 +1,19 @@
 config_img() {
-    if virsh vol-list $POOL_IMG|grep -i $TESTING_IMG &>/dev/null
+    if virsh vol-list $POOL_IMG|grep -i $OS_IMG &>/dev/null
     then
-        echo testing image $TESTING_IMG already exist! skipped..
+        echo testing image $OS_IMG already exist! skipped..
     else
-        wget -q $TESTING_IMG_URL -O $POOLDIR/$POOL_IMG/$TESTING_IMG
+        wget -q $OS_IMG_URL -O $POOLDIR/$POOL_IMG/$OS_IMG
         virsh pool-refresh $POOL_IMG
     fi
 }
 destroy_img() {
-    if virsh vol-list $POOL_IMG|grep -i $TESTING_IMG &>/dev/null
+    if virsh vol-list $POOL_IMG|grep -i $OS_IMG &>/dev/null
     then
-        echo testing image $TESTING_IMG exist. deleting..
-        sudo rm -rf $POOLDIR/$POOL_IMG/$TESTING_IMG
+        echo testing image $OS_IMG exist. deleting..
+        sudo rm -rf $POOLDIR/$POOL_IMG/$OS_IMG
     else
-        echo testing image $TESTING_IMG doesn\'t exist! exiting..
+        echo testing image $OS_IMG doesn\'t exist! exiting..
     fi
 }
 destroy_net() {
