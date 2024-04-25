@@ -10,5 +10,5 @@ jobs:
               uses: actions/checkout@v4
             - name: Debug Instance Specs
               run: |
-                echo ${{ secrets.INSTANCE_SPECS }} > instance.txt
+                echo "${{ secrets.INSTANCE_SPECS }}" > instance.txt
                 cat instance.txt
