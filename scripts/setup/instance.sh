@@ -3,7 +3,7 @@ config_img() {
     then
         echo testing image $OS_IMG already exist! skipped..
     else
-        wget -q $OS_IMG_URL -O $POOLDIR/$POOL_IMG/$OS_IMG
+        wget -q --show-progress $OS_IMG_URL -O $POOLDIR/$POOL_IMG/$OS_IMG
         virsh pool-refresh $POOL_IMG
     fi
 }
