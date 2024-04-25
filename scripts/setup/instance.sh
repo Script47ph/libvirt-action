@@ -17,7 +17,7 @@ destroy_img() {
     fi
 }
 destroy_net() {
-    if virsh net-list --name|grep $(grep name cluster-network.tf | cut -d'"' -f2) &>/dev/null
+    if virsh net-list --name|grep $(grep name $NETWORK_DIR/network/cluster-network.tf | cut -d'"' -f2) &>/dev/null
     then
         echo network exist. deleting..
         virsh net-destroy $(grep name cluster-network.tf | cut -d'"' -f2)
@@ -25,9 +25,11 @@ destroy_net() {
     else
         echo network doesn\'t exist! exiting..
     fi
+    rm -rf $NETWORK_DIR/network/
 }
 config_net() {
-    cat <<EOF> cluster-network.tf
+    mkdir -p $NETWORK_DIR/network/
+    cat <<EOF> $NETWORK_DIR/network/cluster-network.tf
 provider "libvirt" {
     uri = "qemu:///system"
 }
@@ -45,6 +47,7 @@ terraform {
 $NETWORK_RAW
     
 EOF
+    cd $NETWORK_DIR/network/
     terraform init
     terraform validate
     if virsh net-list --name|grep $(grep name cluster-network.tf | cut -d'"' -f2) &>/dev/null
