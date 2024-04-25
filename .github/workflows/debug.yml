@@ -10,7 +10,8 @@ jobs:
               uses: actions/checkout@v4
             - name: Debug Instance Specs
               run: |
-                echo "${{ secrets.INSTANCE_SPECS }}" > instance.txt
+                echo "${{ vars.INSTANCE_SPECS }}" > instance.txt
+                cat instance.txt
             - name: Upload Artifact
               uses: actions/upload-artifact@v4
               with:
