@@ -17,8 +17,8 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          source: ./scripts/setup
-          target: ${{ secrets.TESTDIR }}
+          source: ./scripts/setup/instance.sh
+          target: ${{ vars.INSTANCE_DIR }}
 
   Apply:
     name: Installing required packages
@@ -33,7 +33,7 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            source ${{ secrets.TESTDIR }}/scripts/setup-libvirt.sh
+            source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
             install_libvirt
             install_terraform
             install_geniso
@@ -48,8 +48,7 @@ jobs:
             export POOL="${{ vars.POOL }}"
             export POOLDIR=${{ vars.POOLDIR }}
             export POOL_IMG=${{ vars.POOL_IMG }}
-            cd ${{ secrets.TESTDIR }}
-            source scripts/setup-libvirt.sh
+            source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
             config_libvirt
             config_pool
 
@@ -69,8 +68,7 @@ jobs:
             export POOL=${{ vars.POOL }}
             export POOLDIR=${{ vars.POOLDIR }}
             export POOL_IMG=${{ vars.POOL_IMG }}
-            cd ${{ secrets.TESTDIR }}
-            source scripts/setup-libvirt.sh
+            source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
             destroy_pool
             destroy_libvirt
             destroy_depend
