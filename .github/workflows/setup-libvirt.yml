@@ -73,7 +73,7 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            export POOL=${{ vars.POOL }}
+            export POOL="${{ vars.POOL }}"
             export POOLDIR=${{ vars.POOLDIR }}
             export POOL_IMG=${{ vars.POOL_IMG }}
             source ${{ vars.LIBVIRT_DIR }}/scripts/setup/libvirt.sh
