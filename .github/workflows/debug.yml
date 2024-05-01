@@ -5,31 +5,46 @@ on:
   #    - main
   workflow_dispatch: 
 jobs:
-    debug1:
-        name: Debug1
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout local git
-              uses: actions/checkout@v4
-            - uses: trstringer/manual-approval@v1
-              with:
-                secret: ${{ github.TOKEN }}
-                approvers: Script47ph
-                minimum-approvals: 1
-                issue-title: "Testing Manual Approval"
-            - name: Debug Instance Specs
-              run: |
-                echo "${{ secrets.INSTANCE_SPECS }}" > instance.txt
-                cat instance.txt
-                which sed
-                which awk
-                which grep
-                bash scripts/terraform-gen/tfgen.sh test instance.txt
-              env:
-                OS: ${{ vars.OS_IMG }}
-            - name: Upload Artifact
-              uses: actions/upload-artifact@v4
-              with:
-                name: libvirt_instance_specs
-                path: instance.txt
-                overwrite: true
+  debug1:
+    environment: manual
+    name: Debug1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout local git
+        uses: actions/checkout@v4
+      - name: Debug Instance Specs
+        run: |
+          echo "${{ secrets.INSTANCE_SPECS }}" > instance.txt
+          cat instance.txt
+          which sed
+          which awk
+          which grep
+          bash scripts/terraform-gen/tfgen.sh test instance.txt
+        env:
+          OS: ${{ vars.OS_IMG }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: libvirt_instance_specs
+          path: instance.txt
+          overwrite: true
+  debug2:
+    environment: manual
+    needs: debug1
+    name: Debug2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout local git
+        uses: actions/checkout@v4
+      - name: Echoing debug2
+        run: echo debug2
+  debug3:
+    environment: manual
+    needs: debug1
+    name: Debug3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout local git
+        uses: actions/checkout@v4
+      - name: Echoing debug3
+        run: echo debug3
