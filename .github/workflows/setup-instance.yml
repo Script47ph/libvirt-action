@@ -39,6 +39,7 @@ jobs:
             export OS_IMG=${{ vars.OS_IMG }}
             export OS_IMG_URL=${{ vars.OS_IMG_URL }}
             source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
+            config_img
             config_net
 
   Destroy:
@@ -60,4 +61,5 @@ jobs:
             export NETWORK_DIR=${{ vars.NETWORK_DIR }}
             export OS_IMG=${{ vars.OS_IMG }}
             source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
+            destroy_img
             destroy_net
