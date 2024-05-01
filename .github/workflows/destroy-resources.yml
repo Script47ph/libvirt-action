@@ -8,7 +8,7 @@ on:
 jobs:
   Destroy-All:
     runs-on: ubuntu-latest
-    environment: Resources
+    environment: MyLAB
     steps:
       - name: Destroy All Resources
         uses: appleboy/ssh-action@v1.0.3
