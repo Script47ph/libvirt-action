@@ -10,16 +10,12 @@ config_img() {
 destroy_img() {
     if virsh vol-list $POOL_IMG|grep -i $OS_IMG &>/dev/null
     then
-        echo testing image $OS_IMG exist. deleting..
+        echo image $OS_IMG exist. deleting..
         sudo rm -rf $POOLDIR/$POOL_IMG/$OS_IMG
     else
-        echo testing image $OS_IMG doesn\'t exist! exiting..
+        echo image $OS_IMG doesn\'t exist! exiting..
     fi
 }
-
-# destroy_instance() {
-
-# }
 destroy_net() {
     net_list=$(grep name $NETWORK_DIR/network/cluster-network.tf|cut -d'"' -f2) &>/dev/null
     for i in $net_list

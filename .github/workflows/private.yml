@@ -1,0 +1,123 @@
+name: Private Instance ENV
+
+on:
+  # push:
+  #   branches:
+  #    - main
+  workflow_dispatch: 
+
+jobs:
+  Prepare:
+    environment: MyLAB
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout local git
+        uses: actions/checkout@v4
+      - name: Copy to destination
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          source: "./scripts/setup/instance.sh,./scripts/terraform-gen"
+          target: ${{ secrets.INSTANCE_DIR }}
+
+  Apply:
+    environment: MyLAB
+    needs: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout local git
+        uses: actions/checkout@v4
+      - name: Applying Config
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            export POOL="${{ vars.POOL }}"
+            export POOLDIR=${{ vars.POOLDIR }}
+            export POOL_IMG=${{ vars.POOL_IMG }}
+            export NETWORK_RAW='${{ secrets.NETWORK_RAW }}'
+            export NETWORK_DIR=${{ secrets.NETWORK_DIR }}
+            export OS_IMG=${{ vars.OS_IMG }}
+            export OS_IMG_URL=${{ vars.OS_IMG_URL }}
+            source ${{ secrets.INSTANCE_DIR }}/scripts/setup/instance.sh
+            config_img
+            config_net
+      - name: Create instance
+        run: |
+          echo "${{ secrets.INSTANCE_SPECS }}" > ${{ vars.VM_NAME }}.txt
+          bash scripts/terraform-gen/tfgen.sh ${{ vars.VM_NAME }} ${{ vars.VM_NAME }}.txt
+        env:
+          OS: ${{ vars.OS_IMG }}
+          NAME: ${{ vars.VM_NAME }}
+      - uses: hashicorp/setup-terraform@v3
+      - name: Validate terraform template
+        id: validate-vm
+        run: |
+          cd ${{ vars.VM_NAME }}
+          terraform init
+          terraform validate
+      - name: Copy instance template
+        uses: appleboy/scp-action@v0.1.7
+        if: steps.validate-vm.outcome == 'success'
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          source: ${{ vars.VM_NAME }}
+          target: ${{ secrets.INSTANCE_DIR }}/${{ github.repository }}
+      - name: Applying template
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.INSTANCE_DIR }}/${{ github.repository }}/${{ vars.VM_NAME }}
+            terraform apply -auto-approve
+  Destroy-VM:
+    needs: Apply
+    runs-on: ubuntu-latest
+    environment: MyLAB
+    steps:
+      - name: Destroy Instance/VM Only
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.INSTANCE_DIR }}/${{ github.repository }}/${{ vars.VM_NAME }}
+            terraform destroy -auto-approve
+  Destroy-All:
+    needs: Apply
+    runs-on: ubuntu-latest
+    environment: MyLAB
+    steps:
+      - name: Destroy All Resources
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            export POOL="${{ vars.POOL }}"
+            export POOLDIR=${{ vars.POOLDIR }}
+            export POOL_IMG=${{ vars.POOL_IMG }}
+            export NETWORK_RAW='${{ secrets.NETWORK_RAW }}'
+            export NETWORK_DIR=${{ secrets.NETWORK_DIR }}
+            export OS_IMG=${{ vars.OS_IMG }}
+            source ${{ secrets.INSTANCE_DIR }}/scripts/setup/instance.sh
+            cd ${{ secrets.INSTANCE_DIR }}/${{ github.repository }}/${{ vars.VM_NAME }}
+            terraform destroy -auto-approve
+            destroy_img
+            destroy_net
