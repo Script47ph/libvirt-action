@@ -18,8 +18,9 @@ jobs:
                 which sed
                 which awk
                 which grep
+                bash scripts/terraform-gen/tfgen.sh test instance.txt
               env:
-                OS: ${{ vars.TESTING_IMG }}
+                OS: ${{ vars.OS_IMG }}
             - name: Upload Artifact
               uses: actions/upload-artifact@v4
               with:
