@@ -16,15 +16,7 @@ destroy_img() {
         echo testing image $OS_IMG doesn\'t exist! exiting..
     fi
 }
-config_instance() {
-    cd $INSTANCE_DIR
-    echo $INSTANCE_SPECS > testing-instance.txt
-    bash scripts/terraform-gen/tfgen.sh testing testing-instance.txt
-    cd testing
-    terraform init
-    terraform validate
-    terraform apply -auto-approve
-}
+
 # destroy_instance() {
 
 # }

@@ -26,6 +26,8 @@ jobs:
     needs: Prepare
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout local git
+        uses: actions/checkout@v4
       - name: Applying Config
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -41,12 +43,44 @@ jobs:
             export NETWORK_DIR=${{ vars.NETWORK_DIR }}
             export OS_IMG=${{ vars.OS_IMG }}
             export OS_IMG_URL=${{ vars.OS_IMG_URL }}
-            export INSTANCE_DIR=${{ vars.INSTANCE_DIR }}
-            export INSTANCE_SPECS="${{ vars.INSTANCE_SPECS }}"
+            # export INSTANCE_DIR=${{ vars.INSTANCE_DIR }}
+            # export INSTANCE_SPECS="${{ vars.INSTANCE_SPECS }}"
             source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
             config_img
             config_net
-            config_instance
+      - name: Create testing instance
+        run: |
+          echo "${{ vars.INSTANCE_SPECS }}" > testing-instance.txt
+          bash scripts/terraform-gen/tfgen.sh testing testing-instance.txt
+        env:
+          OS_IMG: ${{ vars.OS_IMG }}
+      - uses: hashicorp/setup-terraform@v3
+      - name: Validate terraform template
+        id: validate-vm
+        run: |
+          cd testing
+          terraform init
+          terraform validate
+      - name: Copy testing instance template
+        uses: appleboy/scp-action@v0.1.7
+        if: steps.validate-vm.outcome == 'success'
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          source: testing
+          target: ${{ vars.INSTANCE_DIR }}/${{ github.repository }}
+      - name: Applying template
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ vars.INSTANCE_DIR }}/${{ github.repository }}/testing
+            terraform apply -auto-approve
 
   Destroy:
     runs-on: ubuntu-latest
