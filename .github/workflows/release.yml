@@ -77,3 +77,41 @@ jobs:
           script: |
             cd ${{ secrets.INSTANCE_DIR }}/${{ github.repository }}/${{ vars.VM_NAME }}
             terraform apply -auto-approve
+  Destroy-VM:
+    environment: MyLAB
+    needs: Apply
+    runs-on: ubuntu-latest
+    steps:
+      - name: Destroy Instance/VM Only
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.INSTANCE_DIR }}/${{ github.repository }}/${{ vars.VM_NAME }}
+            terraform destroy -auto-approve
+  Destroy-All:
+    environment: MyLAB
+    needs: Apply
+    runs-on: ubuntu-latest
+    steps:
+      - name: Destroy All Resources
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            export POOL="${{ vars.POOL }}"
+            export POOLDIR=${{ vars.POOLDIR }}
+            export POOL_IMG=${{ vars.POOL_IMG }}
+            export NETWORK_DIR=${{ secrets.NETWORK_DIR }}
+            export OS_IMG=${{ vars.OS_IMG }}
+            source ${{ secrets.INSTANCE_DIR }}/scripts/setup/instance.sh
+            cd ${{ secrets.INSTANCE_DIR }}/${{ github.repository }}/${{ vars.VM_NAME }}
+            terraform destroy -auto-approve
+            destroy_img
+            destroy_net

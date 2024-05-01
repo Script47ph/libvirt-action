@@ -1,8 +1,8 @@
 name: Destroy Resources
 on:
-  workflow_run: 
-    workflows: ["Release Instance ENV"]
-    types: completed
+  # workflow_run: 
+  #   workflows: ["Release Instance ENV"]
+  #   types: completed
   workflow_dispatch: 
 
 jobs:
