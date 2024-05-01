@@ -38,7 +38,7 @@ jobs:
             export OS_IMG=${{ vars.OS_IMG }}
             export OS_IMG_URL=${{ vars.OS_IMG_URL }}
             source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
-            config_img
+            config_net
 
   Destroy:
     runs-on: ubuntu-latest
@@ -58,4 +58,4 @@ jobs:
             export NETWORK_RAW='${{ vars.NETWORK_RAW }}'
             export OS_IMG=${{ vars.OS_IMG }}
             source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
-            destroy_img
+            destroy_net
