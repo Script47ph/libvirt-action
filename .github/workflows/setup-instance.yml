@@ -51,7 +51,7 @@ jobs:
           echo "${{ secrets.INSTANCE_SPECS }}" > testing-instance.txt
           bash scripts/terraform-gen/tfgen.sh testing testing-instance.txt
         env:
-          OS_IMG: ${{ vars.OS_IMG }}
+          OS: ${{ vars.OS_IMG }}
       - uses: hashicorp/setup-terraform@v3
       - name: Validate terraform template
         id: validate-vm
