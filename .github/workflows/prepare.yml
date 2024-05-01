@@ -1,0 +1,20 @@
+name: Preparing Release
+on:
+  workflow_dispatch: 
+
+jobs:
+  Prepare:
+    environment: MyLAB
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout local git
+        uses: actions/checkout@v4
+      - name: Copy to destination
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          source: "./scripts/setup/instance.sh,./scripts/terraform-gen"
+          target: ${{ secrets.INSTANCE_DIR }}

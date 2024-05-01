@@ -1,0 +1,23 @@
+name: Destroy Release Instance
+
+on:
+  workflow_run: 
+    workflows: ["Release Instance ENV"]
+    types: completed
+  workflow_dispatch: 
+
+jobs:
+  Destroy-VM:
+    runs-on: ubuntu-latest
+    environment: MyLAB
+    steps:
+      - name: Destroy Instance/VM Only
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.INSTANCE_DIR }}/${{ github.repository }}/${{ vars.VM_NAME }}
+            terraform destroy -auto-approve
