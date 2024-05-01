@@ -16,6 +16,18 @@ destroy_img() {
         echo testing image $OS_IMG doesn\'t exist! exiting..
     fi
 }
+config_instance() {
+    cd ${{ vars.INSTANCE_DIR }}
+    echo "${{ vars.INSTANCE_SPECS }}" > testing-instance.txt
+    bash scripts/terraform-gen/tfgen.sh testing testing-instance.txt
+    cd testing
+    terraform init
+    terraform validate
+    terraform apply -auto-approve
+}
+destroy_instance() {
+    
+}
 destroy_net() {
     net_list=$(grep name $NETWORK_DIR/network/cluster-network.tf|cut -d'"' -f2) &>/dev/null
     for i in $net_list

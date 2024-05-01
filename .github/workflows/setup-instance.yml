@@ -16,7 +16,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          source: ./scripts/setup/instance.sh
+          source: "./scripts/setup/instance.sh,./scripts/setup/terraform-gen"
           target: ${{ vars.INSTANCE_DIR }}
 
   Apply:
@@ -38,9 +38,12 @@ jobs:
             export NETWORK_DIR=${{ vars.NETWORK_DIR }}
             export OS_IMG=${{ vars.OS_IMG }}
             export OS_IMG_URL=${{ vars.OS_IMG_URL }}
+            export INSTANCE_DIR=${{ vars.INSTANCE_DIR }}
+            export INSTANCE_SPECS=${{ vars.INSTANCE_SPECS }}
             source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
             config_img
             config_net
+            config_instance
 
   Destroy:
     runs-on: ubuntu-latest
