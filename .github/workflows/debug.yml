@@ -11,6 +11,12 @@ jobs:
         steps:
             - name: Checkout local git
               uses: actions/checkout@v4
+            - uses: trstringer/manual-approval@v1
+              with:
+                secret: ${{ github.TOKEN }}
+                approvers: Script47ph
+                minimum-approvals: 1
+                issue-title: "Testing Manual Approval"
             - name: Debug Instance Specs
               run: |
                 echo "${{ secrets.INSTANCE_SPECS }}" > instance.txt
