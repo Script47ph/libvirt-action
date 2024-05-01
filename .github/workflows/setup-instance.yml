@@ -46,7 +46,7 @@ jobs:
             source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
             config_img
             config_net
-            # config_instance
+            config_instance
 
   Destroy:
     runs-on: ubuntu-latest
