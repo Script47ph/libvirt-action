@@ -48,18 +48,19 @@ jobs:
             config_net
       - name: Create testing instance
         run: |
-          echo "${{ secrets.INSTANCE_SPECS }}" > testing-instance.txt
-          bash scripts/terraform-gen/tfgen.sh testing testing-instance.txt
+          echo "${{ secrets.INSTANCE_SPECS }}" > ${{ vars.VM_NAME }}.txt
+          bash scripts/terraform-gen/tfgen.sh ${{ vars.VM_NAME }} ${{ vars.VM_NAME }}.txt
         env:
           OS: ${{ vars.OS_IMG }}
+          NAME: ${{ vars.VM_NAME }}
       - uses: hashicorp/setup-terraform@v3
       - name: Validate terraform template
         id: validate-vm
         run: |
-          cd testing
+          cd ${{ vars.VM_NAME }}
           terraform init
           terraform validate
-      - name: Copy testing instance template
+      - name: Copy instance template
         uses: appleboy/scp-action@v0.1.7
         if: steps.validate-vm.outcome == 'success'
         with:
@@ -67,7 +68,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          source: testing
+          source: ${{ vars.VM_NAME }}
           target: ${{ vars.INSTANCE_DIR }}/${{ github.repository }}
       - name: Applying template
         uses: appleboy/ssh-action@v1.0.3
@@ -77,14 +78,27 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            cd ${{ vars.INSTANCE_DIR }}/${{ github.repository }}/testing
+            cd ${{ vars.INSTANCE_DIR }}/${{ github.repository }}/${{ vars.VM_NAME }}
             terraform apply -auto-approve
-
-  Destroy:
+  Destroy-VM:
     runs-on: ubuntu-latest
     environment: manual
     steps:
-      - name: Destroy Instance
+      - name: Destroy Instance/VM Only
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ vars.INSTANCE_DIR }}/${{ github.repository }}/${{ vars.VM_NAME }}
+            terraform destroy -auto-approve
+  Destroy-All:
+    runs-on: ubuntu-latest
+    environment: manual
+    steps:
+      - name: Destroy All Resources
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
@@ -99,5 +113,7 @@ jobs:
             export NETWORK_DIR=${{ vars.NETWORK_DIR }}
             export OS_IMG=${{ vars.OS_IMG }}
             source ${{ vars.INSTANCE_DIR }}/scripts/setup/instance.sh
+            cd ${{ vars.INSTANCE_DIR }}/${{ github.repository }}/${{ vars.VM_NAME }}
+            terraform destroy -auto-approve
             destroy_img
             destroy_net
