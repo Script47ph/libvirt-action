@@ -17,14 +17,18 @@ destroy_img() {
     fi
 }
 destroy_net() {
-    if virsh net-list --name|grep $(grep name $NETWORK_DIR/network/cluster-network.tf | cut -d'"' -f2) &>/dev/null
-    then
-        echo network exist. deleting..
-        virsh net-destroy $(grep name cluster-network.tf | cut -d'"' -f2)
-        virsh net-undefine $(grep name cluster-network.tf | cut -d'"' -f2)
-    else
-        echo network doesn\'t exist! exiting..
-    fi
+    net_list=$(grep name $NETWORK_DIR/network/cluster-network.tf|cut -d'"' -f2) &>/dev/null
+    for i in $net_list
+    do
+        if virsh net-list --name|grep $i
+        then
+            echo network exist. deleting..
+            virsh net-destroy $i
+            virsh net-undefine $i
+        else
+            echo network doesn\'t exist! exiting..
+        fi
+    done
     rm -rf $NETWORK_DIR/network/
 }
 config_net() {
@@ -50,10 +54,14 @@ EOF
     cd $NETWORK_DIR/network/
     terraform init
     terraform validate
-    if virsh net-list --name|grep $(grep name cluster-network.tf | cut -d'"' -f2) &>/dev/null
-    then
-        echo network exist! skipped..
-    else
-        terraform apply -auto-approve
-    fi
+    net_list=$(grep name cluster-network.tf|cut -d'"' -f2) &>/dev/null
+    for i in $net_list
+    do
+        if virsh net-list --name|grep $i
+        then
+            echo network exist! skipped..
+        else
+            terraform apply -auto-approve
+        fi
+    done
 }
