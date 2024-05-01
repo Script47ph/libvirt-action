@@ -82,7 +82,7 @@ jobs:
             terraform apply -auto-approve
   Destroy-VM:
     runs-on: ubuntu-latest
-    environment: manual
+    environment: Instances
     steps:
       - name: Destroy Instance/VM Only
         uses: appleboy/ssh-action@v1.0.3
@@ -96,7 +96,7 @@ jobs:
             terraform destroy -auto-approve
   Destroy-All:
     runs-on: ubuntu-latest
-    environment: manual
+    environment: Resources
     steps:
       - name: Destroy All Resources
         uses: appleboy/ssh-action@v1.0.3
