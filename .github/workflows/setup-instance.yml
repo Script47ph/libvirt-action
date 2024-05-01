@@ -50,7 +50,6 @@ jobs:
         run: |
           echo "${{ vars.INSTANCE_SPECS }}" > testing-instance.txt
           cat testing-instance.txt
-          bash scripts/terraform-gen/tfgen.sh testing testing-instance.txt
         env:
           OS_IMG: ${{ vars.OS_IMG }}
       # - uses: hashicorp/setup-terraform@v3
