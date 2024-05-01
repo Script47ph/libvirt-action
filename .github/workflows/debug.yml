@@ -1,5 +1,8 @@
 name: Debug Workflow
 on:
+  push:
+    branches:
+     - main
     workflow_dispatch: 
 jobs:
     debug1:
@@ -12,6 +15,9 @@ jobs:
               run: |
                 echo "${{ vars.INSTANCE_SPECS }}" > instance.txt
                 cat instance.txt
+                which sed
+                which awk
+                which grep
               env:
                 OS: ${{ vars.TESTING_IMG }}
             - name: Upload Artifact
