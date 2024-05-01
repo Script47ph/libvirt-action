@@ -16,7 +16,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          source: "./scripts/setup/instance.sh,./scripts/setup/terraform-gen"
+          source: "./scripts/setup/instance.sh,./scripts/terraform-gen"
           target: ${{ vars.INSTANCE_DIR }}
 
   Apply:
