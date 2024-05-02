@@ -12,6 +12,7 @@ destroy_img() {
     then
         echo image $OS_IMG exist. deleting..
         sudo rm -rf $POOLDIR/$POOL_IMG/$OS_IMG
+        virsh pool-refresh $POOL_IMG
     else
         echo image $OS_IMG doesn\'t exist! exiting..
     fi
